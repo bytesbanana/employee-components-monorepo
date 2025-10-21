@@ -4,8 +4,7 @@ import { Response } from "./types";
 export async function fetchEmployees(): Promise<Response> {
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 300));
-  const response = JSON.parse(JSON.stringify(data)) as Response;
-  return response.slice(0, 25)
+  return JSON.parse(JSON.stringify(data)) as Response;
 }
 
 export function filterEmployees(employees: Response, query: string): Response {
