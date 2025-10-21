@@ -1,7 +1,7 @@
-import { LitElement, html } from "lit";
+import { LitElement, PropertyValues, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Employee, fetchEmployees, Response } from "@lib/data";
-import { menuButtonStyles, tableStyles } from "./employee-table.style";
+import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
 
 @customElement("employee-table")
@@ -48,6 +48,12 @@ export class EmployeeTable extends LitElement {
     super.disconnectedCallback();
     document.removeEventListener("mousemove", this._handleResize);
     document.removeEventListener("mouseup", this._stopResize);
+  }
+
+  willUpdate(changedProperties: PropertyValues) {
+    if (changedProperties.has("data")) {
+      this.total = this.data?.length || 0;
+    }
   }
 
   render() {

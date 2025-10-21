@@ -13,7 +13,6 @@ function App() {
       const handleSearchResults = (e) => {
         tableEl.data = e.detail.results;
         tableEl.query = e.detail.query;
-        tableEl.total = e.detail.total;
       };
 
       searchEl.addEventListener("searchResults", handleSearchResults);

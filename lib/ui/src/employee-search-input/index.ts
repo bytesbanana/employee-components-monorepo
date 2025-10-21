@@ -1,8 +1,9 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Data, fetchEmployees, filterEmployees } from "@lib/data";
 import { debounce, DebouncedFunc } from "lodash-es";
-import { createSearchResultEvent } from "./lib/custom-event";
+import { createSearchResultEvent } from "./events";
+import { inputStyles } from "./styles";
 
 export interface SearchResultsDetail {
   results: Data[];
@@ -11,43 +12,7 @@ export interface SearchResultsDetail {
 
 @customElement("employee-search-input")
 export class EmployeeSearchInput extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-    }
-
-    .search-container {
-      position: relative;
-    }
-
-    input {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-    }
-
-    .spinner {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #3498db;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: translateY(-50%) rotate(0deg);
-      }
-      100% {
-        transform: translateY(-50%) rotate(360deg);
-      }
-    }
-  `;
+  static styles = inputStyles;
 
   @property({ type: String })
   private query = "";
@@ -55,14 +20,27 @@ export class EmployeeSearchInput extends LitElement {
   @property({ type: Boolean, reflect: true })
   private loading = false;
 
-  private debouncedHandleInput: DebouncedFunc<(text: string) => void>;
+  render() {
+    return html`
+      <div class="search-container">
+        <input id="name="employee-search-input" name="employee-search-input"
+        type="text" placeholder="Name, Email, ID"
+        @input=${(e: Event) => {
+          this._debouncedHandleInput((e.target as HTMLInputElement).value);
+        }}
+        .value=${this.query} /> ${this._renderSpinner()}
+      </div>
+    `;
+  }
+
+  private _debouncedHandleInput: DebouncedFunc<(text: string) => void>;
 
   constructor() {
     super();
-    this.debouncedHandleInput = debounce(this.onInputChange, 300);
+    this._debouncedHandleInput = debounce(this._onInputChange, 300);
   }
 
-  private async onInputChange(query = "") {
+  private async _onInputChange(query = "") {
     this.query = query || "";
     if (this.query.length < 2) {
       this.dispatchEvent(
@@ -89,24 +67,11 @@ export class EmployeeSearchInput extends LitElement {
     }
   }
 
-  private renderSpinner() {
+  private _renderSpinner() {
     if (this.loading) {
       return html`<div class="spinner"></div>`;
     }
     return "";
-  }
-
-  render() {
-    return html`
-      <div class="search-container">
-        <input id="name="employee-search-input" name="employee-search-input"
-        type="text" placeholder="Name, Email, ID"
-        @input=${(e: Event) => {
-          this.debouncedHandleInput((e.target as HTMLInputElement).value);
-        }}
-        .value=${this.query} /> ${this.renderSpinner()}
-      </div>
-    `;
   }
 }
 
