@@ -62,14 +62,14 @@ pnpm build
 ### Running Examples
 
 ```bash
-# Vanilla JS example
-pnpm serve:vanilla  # http://localhost:8080
+# Development mode
+pnpm dev            # Start all packages in development mode
+pnpm dev:ui         # Start UI library only
+pnpm dev:data       # Start data service only
 
-# React example
-pnpm serve:react    # http://localhost:3000
-
-# Svelte example
-pnpm serve:svelte   # http://localhost:5173
+# Examples/Demos
+pnpm demo:vanilla   # Vanilla JS example
+pnpm demo:react     # React example
 ```
 
 ### Project Structure
