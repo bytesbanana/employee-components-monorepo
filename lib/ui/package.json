@@ -13,6 +13,7 @@
     "dev": "rollup -c -w"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
     "@lib/data": "workspace:*",
     "iconify": "^1.4.0",
     "lit": "^3.1.0",
