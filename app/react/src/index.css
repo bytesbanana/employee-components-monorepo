@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.instructions {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.instructions h3 {
+  margin-top: 0;
+}
+
+.instructions ul {
+  margin: 10px 0;
+}
+
+.instructions li {
+  margin: 5px 0;
+}

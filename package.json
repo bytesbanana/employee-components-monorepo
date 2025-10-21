@@ -1,0 +1,22 @@
+{
+  "name": "employee-components-monorepo",
+  "version": "1.0.0",
+  "description": "A monorepo for employee components",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter @lib/* build",
+    "dev": "pnpm --filter @lib/* dev",
+    "dev:ui": "pnpm --filter @lib/ui dev",
+    "dev:data": "pnpm --filter @lib/data dev",
+    "demo:react": "pnpm --filter @app/react-example dev",
+    "demo:vanilla": "pnpm --filter @app/vanilla-example dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

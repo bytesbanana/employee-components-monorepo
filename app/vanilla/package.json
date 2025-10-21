@@ -1,0 +1,13 @@
+{
+  "name": "@app/vanilla-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@lib/ui": "workspace:*",
+    "vite": "^4.4.0"
+  }
+}
