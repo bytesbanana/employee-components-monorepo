@@ -1,8 +1,11 @@
 import { LitElement, PropertyValues, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { Employee, fetchEmployees, Response } from "@lib/data";
 import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
+import "./context-menu";
+import { createRef, ref } from "lit/directives/ref.js";
+import { ContextMenu } from "./context-menu";
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {
@@ -33,6 +36,11 @@ export class EmployeeTable extends LitElement {
 
   startWidth: number = 0;
 
+  @state()
+  private selectedEmployee: Employee | null = null;
+
+  private selectedMenuButton: HTMLElement | null = null;
+
   constructor() {
     super();
     this._initializaData();
@@ -42,12 +50,14 @@ export class EmployeeTable extends LitElement {
     super.connectedCallback();
     document.addEventListener("mousemove", this._handleResize);
     document.addEventListener("mouseup", this._stopResize);
+    document.addEventListener("click", this._handleCloseMenu);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     document.removeEventListener("mousemove", this._handleResize);
     document.removeEventListener("mouseup", this._stopResize);
+    document.removeEventListener("click", this._handleCloseMenu);
   }
 
   willUpdate(changedProperties: PropertyValues) {
@@ -118,6 +128,13 @@ export class EmployeeTable extends LitElement {
           </tbody>
         </table>
       </div>
+
+      <context-menu
+        .visible=${this.selectedEmployee !== null}
+        .anchorElement=${this.selectedMenuButton}
+        .employee=${this.selectedEmployee}
+        @onContextMenuClose=${this._handleCloseMenu}
+      ></context-menu>
     `;
   }
 
@@ -142,7 +159,15 @@ export class EmployeeTable extends LitElement {
 
   private _onMenuClick(event: Event, employee: Employee) {
     event.stopPropagation();
+
+    this.selectedEmployee = employee;
+    this.selectedMenuButton = event.target as HTMLElement;
   }
+
+  private _handleCloseMenu = (event: MouseEvent) => {
+    this.selectedEmployee = null;
+    this.selectedMenuButton = null;
+  };
 
   private _startResize(e: MouseEvent, column: string) {
     e.preventDefault();
