@@ -79,7 +79,6 @@ pnpm demo:react     # React example
 ├── lib/ui/           # Library source code
 ├── app/vanilla/      # Vanilla JS example
 ├── app/react/        # React example
-└── app/svelte/       # Svelte example
 ```
 
 ## Components

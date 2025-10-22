@@ -12,6 +12,7 @@
     "demo:vanilla": "pnpm --filter @app/vanilla-example dev"
   },
   "devDependencies": {
+    "pnpm": "^10.19.0",
     "typescript": "^5.9.3"
   },
   "engines": {
