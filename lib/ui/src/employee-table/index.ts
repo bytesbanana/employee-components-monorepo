@@ -136,7 +136,8 @@ export class EmployeeTable extends LitElement {
           </tbody>
         </table>
         <context-menu
-          .visible=${this.selectedEmployee !== null}
+          .visible=${this.selectedEmployee !== null &&
+          this.modalEmployee == null}
           .anchorElement=${this.selectedMenuButton}
           .employee=${this.selectedEmployee}
           @onContextMenuClose=${this._handleCloseMenu}
