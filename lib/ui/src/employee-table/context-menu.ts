@@ -1,8 +1,9 @@
 import { LitElement, html, css, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { Employee } from "@lib/data";
 import { computePosition, offset } from "@floating-ui/dom";
 import { contextMenuStyles } from "./styles";
+import { createRef, ref } from "lit/directives/ref.js";
 
 @customElement("context-menu")
 export class ContextMenu extends LitElement {
@@ -17,15 +18,23 @@ export class ContextMenu extends LitElement {
   @property({ type: Object })
   employee: Employee | null = null;
 
+  connectedCallback(): void {
+    super.connectedCallback();
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+  }
+
   render() {
     if (!this.visible) return html``;
     return html`
-      <div class="context-menu">
-        <div class="menu-item" @click="${this._handleCopyName}">COPY NAME</div>
-        <div class="menu-item" @click="${this._handleViewProjects}">
+      <ul class="context-menu">
+        <li class="menu-item" @click="${this._handleCopyName}">COPY NAME</li>
+        <li class="menu-item" @click="${this._handleViewProjects}">
           VIEW PROJECTS
-        </div>
-      </div>
+        </li>
+      </ul>
     `;
   }
 

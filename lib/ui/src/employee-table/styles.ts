@@ -90,6 +90,8 @@ export const contextMenuStyles = css`
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     min-width: 150px;
     display: block;
+    list-style-type: none;
+    padding: 0;
   }
 
   .context-menu.hidden {
@@ -107,7 +109,8 @@ export const contextMenuStyles = css`
     border-bottom: none;
   }
 
-  .menu-item:hover {
+  .menu-item:hover,
+  .menu-item:focus {
     background: #f5f5f5;
   }
 
