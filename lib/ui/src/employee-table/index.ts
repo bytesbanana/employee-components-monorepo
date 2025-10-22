@@ -4,8 +4,9 @@ import { Employee, fetchEmployees, Response } from "@lib/data";
 import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
 import "./context-menu";
-import { createRef, ref } from "lit/directives/ref.js";
-import { ContextMenu } from "./context-menu";
+import { provide } from "@lit/context";
+import { Task } from "@lit/task";
+import { TaskStatus } from "@lit/task";
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {
@@ -41,9 +42,20 @@ export class EmployeeTable extends LitElement {
 
   private selectedMenuButton: HTMLElement | null = null;
 
+  private _fetchEmployeesTask = new Task(this, {
+    task: async ([data]) => {
+      if (!data?.length) {
+        const employees = await fetchEmployees();
+        this.total = employees.length;
+        return employees;
+      }
+      return data;
+    },
+    args: () => [this.data],
+  });
+
   constructor() {
     super();
-    this._initializaData();
   }
 
   connectedCallback() {
@@ -62,7 +74,9 @@ export class EmployeeTable extends LitElement {
 
   willUpdate(changedProperties: PropertyValues) {
     if (changedProperties.has("data")) {
-      this.total = this.data?.length || 0;
+      if (this.data?.length) {
+        this.total = this.data?.length;
+      }
     }
   }
 
@@ -70,7 +84,10 @@ export class EmployeeTable extends LitElement {
     const columns = ["FULL NAME", "EMAIL ADDRESS", "ID", "START DATE", "MENU"];
     return html`
       <div class="header">
-        Employees (found <span class="count">${this.total}</span> items)
+        ${this._fetchEmployeesTask.status === TaskStatus.COMPLETE
+          ? html`Employee (found
+              <span class="count">${this.total}</span> items)`
+          : html`Employee`}
       </div>
       <div class="scroll-container">
         <table>
@@ -91,56 +108,55 @@ export class EmployeeTable extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${map(this.data, (item) => {
-              const emp = item.employee;
-              const email = emp.department.manager.contact.email;
-              const startDate = emp.projects[0]?.startDate || "N/A";
+            ${this._fetchEmployeesTask.render({
+              pending: () => html`<tr>
+                <td colspan="5">Loading employees...</td>
+              </tr>`,
+              complete: (employees) => {
+                return html`${map(employees, (item) => {
+                  const emp = item.employee;
+                  const email = emp.department.manager.contact.email;
+                  const startDate = emp.projects[0]?.startDate || "N/A";
 
-              return html`
-                <tr>
-                  <td style="width: ${this.columnWidths[columns[0]]}">
-                    ${this._highlightMatch(emp.name, this.query)}
-                  </td>
-                  <td style="width: ${this.columnWidths[columns[1]]}">
-                    ${this._highlightMatch(email, this.query)}
-                  </td>
-                  <td style="width: ${this.columnWidths[columns[2]]}">
-                    ${this._highlightMatch(emp.id, this.query)}
-                  </td>
-                  <td style="width: ${this.columnWidths[columns[3]]}">
-                    ${startDate}
-                  </td>
-                  <td>
-                    <button
-                      class="menu-btn"
-                      @click=${(e: Event) => this._onMenuClick(e, emp)}
-                    >
-                      <iconify-icon
-                        icon="ph:dots-three-outline-vertical-fill"
-                        width="16"
-                        height="16"
-                      ></iconify-icon>
-                    </button>
-                  </td>
-                </tr>
-              `;
+                  return html`<tr>
+                    <td style="width: ${this.columnWidths[columns[0]]}">
+                      ${this._highlightMatch(emp.name, this.query)}
+                    </td>
+                    <td style="width: ${this.columnWidths[columns[1]]}">
+                      ${this._highlightMatch(email, this.query)}
+                    </td>
+                    <td style="width: ${this.columnWidths[columns[2]]}">
+                      ${this._highlightMatch(emp.id, this.query)}
+                    </td>
+                    <td style="width: ${this.columnWidths[columns[3]]}">
+                      ${startDate}
+                    </td>
+                    <td>
+                      <button
+                        class="menu-btn"
+                        @click=${(e: Event) => this._onMenuClick(e, emp)}
+                      >
+                        <iconify-icon
+                          icon="ph:dots-three-outline-vertical-fill"
+                          width="16"
+                          height="16"
+                        ></iconify-icon>
+                      </button>
+                    </td>
+                  </tr>`;
+                })}`;
+              },
             })}
           </tbody>
         </table>
+        <context-menu
+          .visible=${this.selectedEmployee !== null}
+          .anchorElement=${this.selectedMenuButton}
+          .employee=${this.selectedEmployee}
+          @onContextMenuClose=${this._handleCloseMenu}
+        ></context-menu>
       </div>
-
-      <context-menu
-        .visible=${this.selectedEmployee !== null}
-        .anchorElement=${this.selectedMenuButton}
-        .employee=${this.selectedEmployee}
-        @onContextMenuClose=${this._handleCloseMenu}
-      ></context-menu>
     `;
-  }
-
-  private async _initializaData() {
-    this.data = await fetchEmployees();
-    this.total = this.data.length;
   }
 
   private _highlightMatch(text: string, query: string) {

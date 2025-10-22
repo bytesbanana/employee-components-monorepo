@@ -191,7 +191,6 @@ export class ContextMenu extends LitElement {
 
   private _updatePosition = async () => {
     if (!this.visible || !this.anchorElement) return;
-    console.log("updatePosition");
 
     const { x, y } = await computePosition(this.anchorElement, this, {
       placement: "right-start",
@@ -217,7 +216,6 @@ export class ContextMenu extends LitElement {
   private _handleViewProjects(e: Event) {
     e.stopPropagation();
     // TODO: Implement view projects functionality
-    console.log("View projects clicked");
     this._closeContextMenu();
   }
 
