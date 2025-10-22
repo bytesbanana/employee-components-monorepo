@@ -29,6 +29,7 @@
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/lodash-es": "^4.17.12",
     "rollup": "^4.9.0",
+    "rollup-plugin-summary": "^3.0.1",
     "typescript": "^5.3.0"
   },
   "type": "module"
