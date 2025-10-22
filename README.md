@@ -7,7 +7,7 @@ A reusable component library for Employee Management applications, built with Li
 - **Multi-framework Support**: Works with React, Svelte, and vanilla JavaScript
 - **Employee Search Input**: Real-time search across Name, Email, and ID fields
 - **Employee Table**: Display employee data with resizable columns, fixed header, and context menu
-- **Keyboard Shortcuts**: Ctrl/Cmd+K to focus search, arrow keys for navigation
+- **Keyboard Shortcuts**: Ctrl/Cmd+K to focus search, arrow keys for navigation, Enter to open context menu
 - **Minimal UI**: Lightweight with no external UI framework dependencies
 - **TypeScript Support**: Full type definitions included
 
@@ -90,7 +90,7 @@ Search input with debounced functionality. Fires `searchResults` event with filt
 
 ### EmployeeTable
 
-Displays employee data with resizable columns, fixed header, and context menu. Accepts `data`, `query`, and `total` properties.
+Displays employee data with resizable columns, fixed header, and context menu. Accepts `data`, `query`, and `total` properties. Features improved keyboard navigation with proper scrolling that accounts for the sticky header.
 
 ## License
 
