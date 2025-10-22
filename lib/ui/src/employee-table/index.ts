@@ -1,10 +1,9 @@
 import { LitElement, PropertyValues, html } from "lit";
-import { customElement, property, query, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { Employee, fetchEmployees, Response } from "@lib/data";
 import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
 import "./context-menu";
-import { provide } from "@lit/context";
 import { Task } from "@lit/task";
 import { TaskStatus } from "@lit/task";
 
@@ -89,7 +88,7 @@ export class EmployeeTable extends LitElement {
               <span class="count">${this.total}</span> items)`
           : html`Employee`}
       </div>
-      <div class="scroll-container">
+      <div class="scroll-container" @scroll=${this._handleCloseMenu}>
         <table>
           <thead>
             <tr>
