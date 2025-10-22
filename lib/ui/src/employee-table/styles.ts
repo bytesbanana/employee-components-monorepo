@@ -110,7 +110,8 @@ export const contextMenuStyles = css`
   }
 
   .menu-item:hover,
-  .menu-item:focus {
+  .menu-item:focus,
+  .menu-item.active {
     background: #f5f5f5;
   }
 
