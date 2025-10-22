@@ -17,14 +17,6 @@ export class ContextMenu extends LitElement {
   @property({ type: Object })
   employee: Employee | null = null;
 
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-  }
-
   render() {
     if (!this.visible) return html``;
     return html`
