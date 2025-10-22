@@ -1,12 +1,13 @@
 import { LitElement, PropertyValues, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { Employee, fetchEmployees, Response } from "@lib/data";
+import { Employee, fetchEmployees, Response, Data } from "@lib/data";
 import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
 import "./context-menu";
 import "./project-modal";
 import { Task } from "@lit/task";
 import { TaskStatus } from "@lit/task";
+import { StyleInfo, styleMap } from "lit/directives/style-map.js";
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {
@@ -31,22 +32,31 @@ export class EmployeeTable extends LitElement {
 
   private isResizing: boolean = false;
 
-  currentColumn: string | null = null;
+  private currentColumn: string | null = null;
 
-  startX: number = 0;
+  private startX: number = 0;
 
-  startWidth: number = 0;
+  private startWidth: number = 0;
 
   @state()
   private selectedEmployee: Employee | null = null;
 
+  @state()
   private selectedMenuButton: HTMLElement | null = null;
 
   @state()
   private modalEmployee: Employee | null = null;
 
+  @state()
+  private currentFocusRow = -1;
+
+  @state()
+  private currentCursorMode: "ROW" | "MENU" = "ROW";
+
   private _fetchEmployeesTask = new Task(this, {
     task: async ([data]) => {
+      this.currentFocusRow = -1;
+      this.currentCursorMode = "ROW";
       if (!data?.length) {
         const employees = await fetchEmployees();
         this.total = employees.length;
@@ -66,6 +76,7 @@ export class EmployeeTable extends LitElement {
     document.addEventListener("mousemove", this._handleResize);
     document.addEventListener("mouseup", this._stopResize);
     document.addEventListener("click", this._handleCloseMenu);
+    document.addEventListener("keydown", this._handleKeyDown);
   }
 
   disconnectedCallback() {
@@ -73,10 +84,11 @@ export class EmployeeTable extends LitElement {
     document.removeEventListener("mousemove", this._handleResize);
     document.removeEventListener("mouseup", this._stopResize);
     document.removeEventListener("click", this._handleCloseMenu);
+    document.removeEventListener("keydown", this._handleKeyDown);
   }
 
-  willUpdate(changedProperties: PropertyValues) {
-    if (changedProperties.has("data")) {
+  willUpdate(props: PropertyValues) {
+    if (props.has("data")) {
       if (this.data?.length) {
         this.total = this.data?.length;
       }
@@ -116,38 +128,9 @@ export class EmployeeTable extends LitElement {
                 <td colspan="5">Loading employees...</td>
               </tr>`,
               complete: (employees) => {
-                return html`${map(employees, (item) => {
-                  const emp = item.employee;
-                  const email = emp.department.manager.contact.email;
-                  const startDate = emp.projects[0]?.startDate || "N/A";
-
-                  return html`<tr>
-                    <td style="width: ${this.columnWidths[columns[0]]}">
-                      ${this._highlightMatch(emp.name, this.keywords)}
-                    </td>
-                    <td style="width: ${this.columnWidths[columns[1]]}">
-                      ${this._highlightMatch(email, this.keywords)}
-                    </td>
-                    <td style="width: ${this.columnWidths[columns[2]]}">
-                      ${this._highlightMatch(emp.id, this.keywords)}
-                    </td>
-                    <td style="width: ${this.columnWidths[columns[3]]}">
-                      ${startDate}
-                    </td>
-                    <td style="width: ${this.columnWidths[columns[4]]}">
-                      <button
-                        class="menu-btn"
-                        @click=${(e: Event) => this._onMenuClick(e, emp)}
-                      >
-                        <iconify-icon
-                          icon="ph:dots-three-outline-vertical-fill"
-                          width="16"
-                          height="16"
-                        ></iconify-icon>
-                      </button>
-                    </td>
-                  </tr>`;
-                })}`;
+                return html`${map(employees, (item, index) =>
+                  this._renderRow({ item, index, keywords: this.keywords })
+                )}`;
               },
             })}
           </tbody>
@@ -182,16 +165,19 @@ export class EmployeeTable extends LitElement {
     return html`${start}<mark>${match}</mark>${end}`;
   }
 
-  private _onMenuClick(event: Event, employee: Employee) {
+  private _onMenuClick(event: Event, employee: Employee, index: number) {
     event.stopPropagation();
 
     this.selectedEmployee = employee;
     this.selectedMenuButton = event.target as HTMLElement;
+    this.currentCursorMode = "MENU";
+    this.currentFocusRow = index;
   }
 
   private _handleCloseMenu = () => {
     this.selectedEmployee = null;
     this.selectedMenuButton = null;
+    this.currentCursorMode = "ROW";
   };
 
   private _handleViewProjects = (e: CustomEvent) => {
@@ -235,6 +221,149 @@ export class EmployeeTable extends LitElement {
     this.startX = 0;
     this.startWidth = 0;
   };
+
+  private _renderRow({
+    item,
+    index,
+    keywords,
+  }: {
+    item: Data;
+    index: number;
+    keywords: string;
+  }) {
+    const emp = item.employee;
+    const email = emp.department.manager.contact.email;
+    const startDate = emp.projects[0]?.startDate || "N/A";
+    const columns = ["FULL NAME", "EMAIL ADDRESS", "ID", "START DATE", "MENU"];
+
+    const isFocusing = index === this.currentFocusRow;
+    let focusStyle: StyleInfo = {};
+    if (isFocusing) {
+      focusStyle = {
+        "background-color": "#bdc4ed",
+      };
+    }
+
+    return html`<tr style=${styleMap(focusStyle)}>
+      <td style="width: ${this.columnWidths[columns[0]]}">
+        ${this._highlightMatch(emp.name, keywords)}
+      </td>
+      <td style="width: ${this.columnWidths[columns[1]]}">
+        ${this._highlightMatch(email, keywords)}
+      </td>
+      <td style="width: ${this.columnWidths[columns[2]]}">
+        ${this._highlightMatch(emp.id, keywords)}
+      </td>
+      <td style="width: ${this.columnWidths[columns[3]]}">${startDate}</td>
+      <td style="width: ${this.columnWidths[columns[4]]}">
+        <button
+          class="menu-btn"
+          @click=${(e: Event) => this._onMenuClick(e, emp, index)}
+        >
+          <iconify-icon
+            icon="ph:dots-three-outline-vertical-fill"
+            width="16"
+            height="16"
+          ></iconify-icon>
+        </button>
+      </td>
+    </tr>`;
+  }
+
+  private _handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (this.currentCursorMode === "ROW") {
+        this.currentFocusRow = Math.min(
+          this.currentFocusRow + 1,
+          this.total - 1
+        );
+        this._scrollToCurrentRow();
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (this.currentCursorMode === "ROW") {
+        this.currentFocusRow = Math.max(0, this.currentFocusRow - 1);
+        this._scrollToCurrentRow();
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      this._openContextMenuForFocusedRow();
+      this.currentCursorMode = "MENU";
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      if (this.currentCursorMode === "MENU") {
+        this._handleCloseMenu();
+      }
+    }
+  };
+
+  private _openContextMenuForFocusedRow() {
+    if (this.currentFocusRow < 0) return;
+
+    const employees = this._fetchEmployeesTask.value;
+    if (!employees) return;
+
+    const employeeData = employees[this.currentFocusRow] as Data;
+    if (!employeeData) return;
+
+    const tbody = this.shadowRoot?.querySelector(
+      "tbody"
+    ) as HTMLTableSectionElement;
+    if (!tbody) return;
+
+    const rows = tbody.querySelectorAll("tr");
+    const currentRow = rows[this.currentFocusRow] as HTMLTableRowElement;
+    if (!currentRow) return;
+
+    const menuButton = currentRow.querySelector(".menu-btn") as HTMLElement;
+    if (!menuButton) return;
+
+    this.selectedEmployee = employeeData.employee;
+    this.selectedMenuButton = menuButton;
+  }
+
+  private _scrollToCurrentRow() {
+    if (this.currentFocusRow < 0) return;
+
+    const scrollContainer = this.shadowRoot?.querySelector(
+      ".scroll-container"
+    ) as HTMLElement;
+    if (!scrollContainer) return;
+
+    const thead = this.shadowRoot?.querySelector(
+      "thead"
+    ) as HTMLTableSectionElement;
+    if (!thead) return;
+
+    const tbody = this.shadowRoot?.querySelector(
+      "tbody"
+    ) as HTMLTableSectionElement;
+    if (!tbody) return;
+
+    const rows = tbody.querySelectorAll("tr");
+    const currentRow = rows[this.currentFocusRow] as HTMLTableRowElement;
+    if (!currentRow) return;
+
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const rowRect = currentRow.getBoundingClientRect();
+    const headerHeight = thead.offsetHeight;
+
+    // Calculate the effective visible top accounting for sticky header
+    const visibleTop = containerRect.top + headerHeight;
+
+    if (rowRect.top < visibleTop) {
+      // Row is above the visible area (hidden by sticky header)
+      // Scroll to align row's top with the visible area top
+      const scrollOffset = rowRect.top - visibleTop;
+      scrollContainer.scrollTop += scrollOffset;
+    } else if (rowRect.bottom > containerRect.bottom) {
+      // Row is below the visible area
+      // Scroll to bring the row fully into view from bottom
+      const scrollOffset = rowRect.bottom - containerRect.bottom;
+      scrollContainer.scrollTop += scrollOffset;
+    }
+  }
 }
 
 declare global {
