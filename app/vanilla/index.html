@@ -81,7 +81,7 @@
         // Connect search to table
         searchInput.addEventListener("searchResults", (e) => {
           table.data = e.detail.results;
-          table.query = e.detail.query;
+          table.keywords = e.detail.keywords;
         });
       });
     </script>

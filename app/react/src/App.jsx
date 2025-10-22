@@ -12,7 +12,7 @@ function App() {
     if (searchEl && tableEl) {
       const handleSearchResults = (e) => {
         tableEl.data = e.detail.results;
-        tableEl.query = e.detail.query;
+        tableEl.keywords = e.detail.keywords;
       };
 
       searchEl.addEventListener("searchResults", handleSearchResults);

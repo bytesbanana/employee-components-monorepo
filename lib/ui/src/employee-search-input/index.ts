@@ -7,7 +7,7 @@ import { inputStyles } from "./styles";
 
 export interface SearchResultsDetail {
   results: Data[];
-  query: string;
+  keywords: string;
 }
 
 @customElement("employee-search-input")
@@ -44,7 +44,7 @@ export class EmployeeSearchInput extends LitElement {
     this.query = query || "";
     if (this.query.length < 2) {
       this.dispatchEvent(
-        createSearchResultEvent({ query: this.query, results: [] })
+        createSearchResultEvent({ keywords: this.query, results: [] })
       );
       return;
     }
@@ -55,12 +55,12 @@ export class EmployeeSearchInput extends LitElement {
       const filtered = filterEmployees(employees, this.query);
 
       this.dispatchEvent(
-        createSearchResultEvent({ results: filtered, query: this.query })
+        createSearchResultEvent({ results: filtered, keywords: this.query })
       );
     } catch (error) {
       console.error("Error fetching employee data:", error);
       this.dispatchEvent(
-        createSearchResultEvent({ results: [], query: this.query })
+        createSearchResultEvent({ results: [], keywords: this.query })
       );
     } finally {
       this.loading = false;

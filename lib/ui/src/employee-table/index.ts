@@ -1,5 +1,5 @@
 import { LitElement, PropertyValues, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { Employee, fetchEmployees, Response } from "@lib/data";
 import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
@@ -16,7 +16,7 @@ export class EmployeeTable extends LitElement {
   data: Response = [];
 
   @property({ type: String })
-  query = "";
+  keywords = "";
 
   @property({ type: Number })
   total = 0;
@@ -120,13 +120,13 @@ export class EmployeeTable extends LitElement {
 
                   return html`<tr>
                     <td style="width: ${this.columnWidths[columns[0]]}">
-                      ${this._highlightMatch(emp.name, this.query)}
+                      ${this._highlightMatch(emp.name, this.keywords)}
                     </td>
                     <td style="width: ${this.columnWidths[columns[1]]}">
-                      ${this._highlightMatch(email, this.query)}
+                      ${this._highlightMatch(email, this.keywords)}
                     </td>
                     <td style="width: ${this.columnWidths[columns[2]]}">
-                      ${this._highlightMatch(emp.id, this.query)}
+                      ${this._highlightMatch(emp.id, this.keywords)}
                     </td>
                     <td style="width: ${this.columnWidths[columns[3]]}">
                       ${startDate}
@@ -159,16 +159,16 @@ export class EmployeeTable extends LitElement {
     `;
   }
 
-  private _highlightMatch(text: string, query: string) {
-    if (!query) return text;
+  private _highlightMatch(text: string, keywords: string) {
+    if (!keywords) return text;
     const lowerText = text.toLowerCase();
-    const lowerQuery = query.toLowerCase();
-    const index = lowerText.indexOf(lowerQuery);
+    const lowerKeywords = keywords.toLowerCase();
+    const index = lowerText.indexOf(lowerKeywords);
     if (index === -1) return text;
 
     const start = text.slice(0, index);
-    const match = text.slice(index, index + query.length);
-    const end = text.slice(index + query.length);
+    const match = text.slice(index, index + keywords.length);
+    const end = text.slice(index + keywords.length);
 
     return html`${start}<mark>${match}</mark>${end}`;
   }
@@ -180,7 +180,7 @@ export class EmployeeTable extends LitElement {
     this.selectedMenuButton = event.target as HTMLElement;
   }
 
-  private _handleCloseMenu = (event: MouseEvent) => {
+  private _handleCloseMenu = () => {
     this.selectedEmployee = null;
     this.selectedMenuButton = null;
   };
