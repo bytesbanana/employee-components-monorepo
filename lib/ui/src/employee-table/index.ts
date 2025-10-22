@@ -131,7 +131,7 @@ export class EmployeeTable extends LitElement {
                     <td style="width: ${this.columnWidths[columns[3]]}">
                       ${startDate}
                     </td>
-                    <td>
+                    <td style="width: ${this.columnWidths[columns[4]]}">
                       <button
                         class="menu-btn"
                         @click=${(e: Event) => this._onMenuClick(e, emp)}
