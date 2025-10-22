@@ -1,8 +1,7 @@
 import { LitElement, html, css, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { Employee } from "@lib/data";
-import { computePosition, flip, offset, shift } from "@floating-ui/dom";
-import { classMap } from "lit/directives/class-map.js";
+import { computePosition, offset } from "@floating-ui/dom";
 
 @customElement("context-menu")
 export class ContextMenu extends LitElement {
