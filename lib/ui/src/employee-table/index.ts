@@ -4,6 +4,7 @@ import { Employee, fetchEmployees, Response } from "@lib/data";
 import { menuButtonStyles, tableStyles } from "./styles";
 import { map } from "lit/directives/map.js";
 import "./context-menu";
+import "./project-modal";
 import { Task } from "@lit/task";
 import { TaskStatus } from "@lit/task";
 
@@ -40,6 +41,9 @@ export class EmployeeTable extends LitElement {
   private selectedEmployee: Employee | null = null;
 
   private selectedMenuButton: HTMLElement | null = null;
+
+  @state()
+  private modalEmployee: Employee | null = null;
 
   private _fetchEmployeesTask = new Task(this, {
     task: async ([data]) => {
@@ -153,7 +157,13 @@ export class EmployeeTable extends LitElement {
           .anchorElement=${this.selectedMenuButton}
           .employee=${this.selectedEmployee}
           @onContextMenuClose=${this._handleCloseMenu}
+          @viewProjects=${this._handleViewProjects}
         ></context-menu>
+        <project-modal
+          .visible=${this.modalEmployee !== null}
+          .employee=${this.modalEmployee}
+          @close=${this._handleCloseModal}
+        ></project-modal>
       </div>
     `;
   }
@@ -182,6 +192,14 @@ export class EmployeeTable extends LitElement {
   private _handleCloseMenu = () => {
     this.selectedEmployee = null;
     this.selectedMenuButton = null;
+  };
+
+  private _handleViewProjects = (e: CustomEvent) => {
+    this.modalEmployee = e.detail.employee;
+  };
+
+  private _handleCloseModal = () => {
+    this.modalEmployee = null;
   };
 
   private _startResize(e: MouseEvent, column: string) {

@@ -71,7 +71,15 @@ export class ContextMenu extends LitElement {
 
   private _handleViewProjects(e: Event) {
     e.stopPropagation();
-    // TODO: Implement view projects functionality
+    if (this.employee) {
+      this.dispatchEvent(
+        new CustomEvent("viewProjects", {
+          bubbles: true,
+          composed: true,
+          detail: { employee: this.employee },
+        })
+      );
+    }
     this._closeContextMenu();
   }
 
