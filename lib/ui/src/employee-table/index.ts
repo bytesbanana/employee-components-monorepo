@@ -57,14 +57,14 @@ export class EmployeeTable extends LitElement {
     task: async ([data]) => {
       this.currentFocusRow = -1;
       this.currentCursorMode = "ROW";
-      if (!data?.length) {
+      if (!data?.length && !this.keywords) {
         const employees = await fetchEmployees();
         this.total = employees.length;
         return employees;
       }
       return data;
     },
-    args: () => [this.data],
+    args: () => [this.data, this.keywords],
   });
 
   constructor() {
@@ -89,9 +89,7 @@ export class EmployeeTable extends LitElement {
 
   willUpdate(props: PropertyValues) {
     if (props.has("data")) {
-      if (this.data?.length) {
-        this.total = this.data?.length;
-      }
+      this.total = this.data?.length || 0;
     }
   }
 
