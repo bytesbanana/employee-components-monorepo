@@ -6,8 +6,8 @@ A reusable component library for Employee Management applications, built with Li
 
 - **Multi-framework Support**: Works with React, Svelte, and vanilla JavaScript
 - **Employee Search Input**: Real-time search across Name, Email, and ID fields
-- **Employee Table**: Display employee data with resizable columns, fixed header, and context menu
-- **Keyboard Shortcuts**: Ctrl/Cmd+K to focus search, arrow keys for navigation, Enter to open context menu
+- **Employee Table**: Display employee data with resizable columns, fixed header, context menu, and virtual scrolling for performance
+- **Keyboard Navigation**: Arrow keys for row selection with automatic scrolling (Ctrl/Cmd+K focus shortcut planned)
 - **Minimal UI**: Lightweight with no external UI framework dependencies
 - **TypeScript Support**: Full type definitions included
 
@@ -16,7 +16,9 @@ A reusable component library for Employee Management applications, built with Li
 ### Installation
 
 ```bash
-npm install employee-components
+npm install @lib/ui
+# or
+pnpm add @lib/ui
 ```
 
 ### Usage
@@ -26,14 +28,13 @@ npm install employee-components
 <employee-table></employee-table>
 
 <script type="module">
-  import 'employee-components';
+  import '@lib/ui';
   const searchInput = document.querySelector('employee-search-input');
   const table = document.querySelector('employee-table');
   
   searchInput.addEventListener('searchResults', (e) => {
     table.data = e.detail.results;
-    table.query = e.detail.query;
-    table.total = e.detail.total;
+    table.keywords = e.detail.keywords;
   });
 </script>
 ```
@@ -76,20 +77,22 @@ pnpm demo:react     # React example
 
 ```
 /
-├── lib/ui/           # Library source code
+├── lib/ui/           # Library source code (Web Components)
+├── lib/data/         # Data service and types
 ├── app/vanilla/      # Vanilla JS example
 ├── app/react/        # React example
+└── pnpm-workspace.yaml
 ```
 
 ## Components
 
 ### EmployeeSearchInput
 
-Search input with debounced functionality. Fires `searchResults` event with filtered data.
+Search input with debounced functionality (300ms). Fires `searchResults` event with filtered data, keywords, and metadata.
 
 ### EmployeeTable
 
-Displays employee data with resizable columns, fixed header, and context menu. Accepts `data`, `query`, and `total` properties. Features improved keyboard navigation with proper scrolling that accounts for the sticky header.
+Displays employee data with resizable columns, fixed header, context menu, and virtual scrolling. Accepts `data` and `keywords` properties for rendering and highlighting. Features keyboard navigation with arrow keys for row selection and automatic scrolling to keep focused rows visible.
 
 ## License
 
