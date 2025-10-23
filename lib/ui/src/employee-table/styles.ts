@@ -29,6 +29,8 @@ export const tableStyles = css`
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-flex;
+    align-items: center;
   }
   .scroll-container {
     max-height: var(--employee-table-max-height, 400px);

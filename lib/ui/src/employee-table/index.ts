@@ -108,12 +108,19 @@ export class EmployeeTable extends LitElement {
             <td>Loading employees...</td>
           </tr>
         `,
-        complete: (employees) =>
-          virtualize({
+        complete: (employees) => {
+          if (!employees.length) {
+            return html` <tr>
+              <td>No employees found</td>
+            </tr>`;
+          }
+
+          return virtualize({
             items: employees,
             renderItem: (item, index) =>
               this._renderRow({ item, index, keywords: this.keywords }),
-          }),
+          });
+        },
       })}
     </tbody>`;
   }
