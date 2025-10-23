@@ -9,28 +9,30 @@ export const tableStyles = css`
     margin: 10px 0;
   }
 
-  .scroll-container {
-    overflow-y: scroll;
-    overflow-x: hidden;
-    max-height: var(--employee-table-max-height, 400px);
-  }
-
   table {
     width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
+    display: flex;
+    flex-direction: column;
   }
 
+  tr {
+    display: flex;
+    width: 100%;
+  }
   th,
   td {
+    flex: auto;
+    position: relative;
     border: 1px solid #ddd;
     padding: 8px;
-    max-width: 50vw;
     height: 2rem;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
-    position: relative;
+  }
+  .scroll-container {
+    max-height: var(--employee-table-max-height, 400px);
+    overflow: scroll;
   }
 
   .resize-handle {

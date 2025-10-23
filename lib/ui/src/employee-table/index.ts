@@ -8,6 +8,7 @@ import "./project-modal";
 import { Task } from "@lit/task";
 import { TaskStatus } from "@lit/task";
 import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import { virtualize } from "@lit-labs/virtualizer/virtualize.js";
 
 @customElement("employee-table")
 export class EmployeeTable extends LitElement {
@@ -28,7 +29,13 @@ export class EmployeeTable extends LitElement {
       return JSON.stringify(value) !== JSON.stringify(oldValue);
     },
   })
-  columnWidths: Record<string, any> = {};
+  columnWidths: Record<string, any> = {
+    "FULL NAME": "200px",
+    "EMAIL ADDRESS": "200px",
+    ID: "200px",
+    "START DATE": "200px",
+    MENU: "200px",
+  };
 
   private isResizing: boolean = false;
 
@@ -93,6 +100,24 @@ export class EmployeeTable extends LitElement {
     }
   }
 
+  private _renderTableBody() {
+    return html` <tbody>
+      ${this._fetchEmployeesTask.render({
+        pending: () => html`
+          <tr>
+            <td>Loading employees...</td>
+          </tr>
+        `,
+        complete: (employees) =>
+          virtualize({
+            items: employees,
+            renderItem: (item, index) =>
+              this._renderRow({ item, index, keywords: this.keywords }),
+          }),
+      })}
+    </tbody>`;
+  }
+
   render() {
     const columns = ["FULL NAME", "EMAIL ADDRESS", "ID", "START DATE", "MENU"];
     return html`
@@ -106,32 +131,22 @@ export class EmployeeTable extends LitElement {
         <table>
           <thead>
             <tr>
-              ${map(
-                columns,
-                (col) => html` <th style="width: ${this.columnWidths[col]}">
+              ${map(columns, (col, index) => {
+                return html` <th style="width: ${this.columnWidths[col]}">
                   ${col}
-                  <div
-                    class="resize-handle"
-                    @mousedown=${(e: MouseEvent) => {
-                      this._startResize(e, col);
-                    }}
-                  ></div>
-                </th>`
-              )}
+                  ${index === columns.length - 1
+                    ? html``
+                    : html`<div
+                        class="resize-handle"
+                        @mousedown=${(e: MouseEvent) => {
+                          this._startResize(e, col);
+                        }}
+                      />`}
+                </th>`;
+              })}
             </tr>
           </thead>
-          <tbody>
-            ${this._fetchEmployeesTask.render({
-              pending: () => html`<tr>
-                <td colspan="5">Loading employees...</td>
-              </tr>`,
-              complete: (employees) => {
-                return html`${map(employees, (item, index) =>
-                  this._renderRow({ item, index, keywords: this.keywords })
-                )}`;
-              },
-            })}
-          </tbody>
+          ${this._renderTableBody()}
         </table>
         <context-menu
           .visible=${this.selectedEmployee !== null &&
